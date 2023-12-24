@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:16.1-alpine3.19
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      - ./create.sql:/docker-entrypoint-initdb.d/create.sql
+    networks:
+      - file-vault-network
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "7000:8080"
+    networks:
+      - file-vault-network
+
+networks:
+  file-vault-network:
+    name: file-vault-network
+    driver: bridge
