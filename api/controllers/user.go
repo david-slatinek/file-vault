@@ -13,12 +13,12 @@ type User struct {
 }
 
 func (receiver User) Register(context *gin.Context) {
-	err := receiver.UserDB.Register(context.MustGet("email").(string))
+	key, url, err := receiver.UserDB.Register(context.MustGet("email").(string))
 
 	if errors.Is(err, db.UserAlreadyExists) {
 		context.JSON(http.StatusBadRequest, response.Error{Message: "email already exists"})
 		return
 	}
 
-	context.JSON(http.StatusNoContent, nil)
+	context.JSON(http.StatusCreated, response.OTP{Key: key, URL: url})
 }

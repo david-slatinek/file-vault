@@ -4,3 +4,7 @@ database:
 server:
   mode: ""
   address: ""
+
+app:
+  issuer: ""
+  valid: 0

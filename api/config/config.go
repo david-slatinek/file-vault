@@ -12,6 +12,10 @@ type Config struct {
 		Mode    string
 		Address string
 	}
+	App struct {
+		Issuer string
+		Valid  uint
+	}
 }
 
 func NewConfig() (*Config, error) {

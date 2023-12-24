@@ -23,7 +23,7 @@ func main() {
 		log.Fatalf("error loading config: %v", err)
 	}
 
-	userDb, err := db.NewUser(cfg.Database.ConnectionString)
+	userDb, err := db.New(cfg)
 	if err != nil {
 		log.Fatalf("error connecting to users database: %v", err)
 	}
