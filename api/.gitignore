@@ -24,3 +24,4 @@ config.yml
 .env
 
 db/data
+config/keys

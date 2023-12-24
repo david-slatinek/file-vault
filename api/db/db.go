@@ -8,6 +8,7 @@ import (
 	"main/config"
 	"main/models"
 	"main/otp"
+	"main/pki"
 	"time"
 )
 
@@ -19,6 +20,7 @@ var (
 type User struct {
 	db        *gorm.DB
 	otpClient *otp.OTP
+	pkiClient *pki.PKI
 }
 
 func New(cfg *config.Config) (*User, error) {
@@ -39,9 +41,15 @@ func New(cfg *config.Config) (*User, error) {
 		return nil, err
 	}
 
+	p, err := pki.New(*cfg)
+	if err != nil {
+		return nil, err
+	}
+
 	return &User{
 		db:        db,
 		otpClient: otp.New(cfg),
+		pkiClient: p,
 	}, nil
 }
 
@@ -59,7 +67,12 @@ func (receiver User) Register(email string) (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
-	user.Secret = secret
+
+	encrypted, err := receiver.pkiClient.Encrypt(secret)
+	if err != nil {
+		return "", "", err
+	}
+	user.Secret = encrypted
 
 	result = receiver.db.Create(&user)
 	if result.Error != nil {
@@ -77,7 +90,12 @@ func (receiver User) Login(email, code string) error {
 		return UserNotFoundOrInvalidCode
 	}
 
-	if !receiver.otpClient.Valid(code, user.Secret) {
+	secret, err := receiver.pkiClient.Decrypt(user.Secret)
+	if err != nil {
+		return err
+	}
+
+	if !receiver.otpClient.Valid(code, secret) {
 		return UserNotFoundOrInvalidCode
 	}
 

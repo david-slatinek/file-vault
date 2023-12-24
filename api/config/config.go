@@ -16,6 +16,10 @@ type Config struct {
 		Issuer string
 		Valid  uint
 	}
+	PKI struct {
+		PublicKey  string `mapstructure:"public-key"`
+		PrivateKey string `mapstructure:"private-key"`
+	}
 }
 
 func NewConfig() (*Config, error) {

@@ -19,6 +19,9 @@ func (receiver User) Register(context *gin.Context) {
 	if errors.Is(err, db.UserAlreadyExists) {
 		context.JSON(http.StatusBadRequest, response.Error{Message: db.UserAlreadyExists.Error()})
 		return
+	} else if err != nil {
+		context.JSON(http.StatusInternalServerError, response.Error{Message: err.Error()})
+		return
 	}
 
 	context.JSON(http.StatusCreated, response.OTP{Key: key, URL: url})
