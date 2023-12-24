@@ -12,7 +12,8 @@ import (
 )
 
 var (
-	UserAlreadyExists = errors.New("user already exists")
+	UserAlreadyExists         = errors.New("user already exists")
+	UserNotFoundOrInvalidCode = errors.New("user not found or invalid code")
 )
 
 type User struct {
@@ -66,4 +67,19 @@ func (receiver User) Register(email string) (string, string, error) {
 	}
 
 	return secret, url, nil
+}
+
+func (receiver User) Login(email, code string) error {
+	user := models.User{}
+	result := receiver.db.Where("email = ?", email).First(&user)
+
+	if result.RowsAffected == 0 {
+		return UserNotFoundOrInvalidCode
+	}
+
+	if !receiver.otpClient.Valid(code, user.Secret) {
+		return UserNotFoundOrInvalidCode
+	}
+
+	return nil
 }

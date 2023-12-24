@@ -1,6 +1,7 @@
 package otp
 
 import (
+	"crypto/rand"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"main/config"
@@ -15,8 +16,8 @@ func New(cfg *config.Config) *OTP {
 		options: totp.GenerateOpts{
 			Issuer:    cfg.App.Issuer,
 			Period:    cfg.App.Valid,
-			Algorithm: otp.AlgorithmSHA512,
-			Rand:      nil,
+			Algorithm: otp.AlgorithmSHA1,
+			Rand:      rand.Reader,
 		},
 	}
 }
@@ -31,4 +32,8 @@ func (receiver OTP) GenerateOTP(email string) (string, string, error) {
 	}
 
 	return key.Secret(), key.URL(), nil
+}
+
+func (receiver OTP) Valid(code, secret string) bool {
+	return totp.Validate(code, secret)
 }

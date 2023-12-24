@@ -33,7 +33,7 @@ func main() {
 	router := gin.Default()
 
 	router.NoRoute(func(c *gin.Context) {
-		c.JSON(http.StatusNotFound, response.Error{Message: "not found"})
+		c.JSON(http.StatusNotFound, response.Error{Message: "endpoint not found"})
 	})
 	router.NoMethod(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, response.Error{Message: "method not allowed"})
@@ -46,6 +46,7 @@ func main() {
 	usersGroup := router.Group("api/v1").Use(auth.ValidateToken)
 	{
 		usersGroup.POST("/register", userController.Register)
+		usersGroup.POST("/login", userController.Login)
 	}
 
 	srv := &http.Server{
