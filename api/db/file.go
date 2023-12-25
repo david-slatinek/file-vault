@@ -21,15 +21,11 @@ func NewFile(cfg *config.Config) (*File, error) {
 	}, nil
 }
 
-func (receiver File) Create(userID int) (int, error) {
+func (receiver File) Create(userID int, id string) error {
 	file := models.File{
+		ID:     id,
 		UserID: userID,
 	}
 
-	result := receiver.db.Create(&file)
-	if result.Error != nil {
-		return 0, result.Error
-	}
-
-	return file.ID, nil
+	return receiver.db.Create(&file).Error
 }

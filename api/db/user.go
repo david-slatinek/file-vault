@@ -100,12 +100,8 @@ func (receiver User) Login(email, code string) error {
 		return UserNotFoundOrInvalidCode
 	}
 
-	secret, err := receiver.pkiClient.Decrypt(user.Secret)
-	if err != nil {
-		return err
-	}
-
-	if !receiver.otpClient.Valid(code, secret) {
+	valid, err := receiver.ValidCode(user, code)
+	if err != nil || !valid {
 		return UserNotFoundOrInvalidCode
 	}
 
@@ -128,4 +124,17 @@ func (receiver User) GetByEmail(email string) (models.User, error) {
 	}
 
 	return user, nil
+}
+
+func (receiver User) ValidCode(user models.User, code string) (bool, error) {
+	secret, err := receiver.pkiClient.Decrypt(user.Secret)
+	if err != nil {
+		return false, err
+	}
+
+	if !receiver.otpClient.Valid(code, secret) {
+		return false, UserNotFoundOrInvalidCode
+	}
+
+	return true, nil
 }

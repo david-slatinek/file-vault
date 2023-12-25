@@ -15,7 +15,7 @@ CREATE INDEX users_email_idx ON users (email);
 
 CREATE TABLE files
 (
-    id          SERIAL,
+    id          TEXT,
     user_id     INTEGER   NOT NULL,
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     accessed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
