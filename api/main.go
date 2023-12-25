@@ -81,6 +81,7 @@ func main() {
 	{
 		filesGroup.POST("/upload", fileController.Upload)
 		filesGroup.GET("/download/:id", fileController.Download)
+		filesGroup.DELETE("/delete/:id", fileController.Delete)
 	}
 
 	srv := &http.Server{

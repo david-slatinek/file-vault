@@ -43,3 +43,7 @@ func (receiver File) UpdateSalt(file models.File, salt string) error {
 func (receiver File) Delete(file models.File) error {
 	return receiver.db.Delete(&file).Error
 }
+
+func (receiver File) UpdateAccessedAt(file models.File) error {
+	return receiver.db.Model(&file).Update("accessed_at", "now()").Error
+}

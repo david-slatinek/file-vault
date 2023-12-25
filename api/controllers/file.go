@@ -13,6 +13,7 @@ import (
 	"main/storage"
 	"main/validator"
 	"net/http"
+	"time"
 )
 
 type File struct {
@@ -169,6 +170,63 @@ func (receiver File) Download(context *gin.Context) {
 		return
 	}
 
+	file.AccessedAt = time.Now()
+	_ = receiver.FileDB.UpdateAccessedAt(file)
+
 	context.Header("Content-Disposition", "attachment; filename="+file.Filename)
 	context.Data(http.StatusOK, "application/octet-stream", plaintext)
+}
+
+func (receiver File) Delete(context *gin.Context) {
+	email := context.MustGet("email").(string)
+
+	user, err := receiver.UserDB.GetByEmail(email)
+	if errors.Is(err, db.UserNotFound) {
+		context.JSON(http.StatusBadRequest, response.Error{Message: err.Error()})
+		return
+	} else if err != nil {
+		context.JSON(http.StatusInternalServerError, response.Error{Message: err.Error()})
+		return
+	}
+
+	var req request.Login
+	if err := context.ShouldBindJSON(&req); err != nil {
+		context.JSON(http.StatusBadRequest, response.Error{Message: err.Error()})
+		return
+	}
+
+	valid, err := receiver.UserDB.ValidCode(user, req.Code)
+	if err != nil || !valid {
+		context.JSON(http.StatusBadRequest, response.Error{Message: err.Error()})
+		return
+	}
+
+	var file = models.File{}
+	id := context.Param("id")
+
+	for _, value := range user.Files {
+		if value.ID == id {
+			file = value
+			break
+		}
+	}
+
+	if file.ID == "" {
+		context.JSON(http.StatusBadRequest, response.Error{Message: "file does not exist"})
+		return
+	}
+
+	err = receiver.FileDB.Delete(file)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, response.Error{Message: err.Error()})
+		return
+	}
+
+	err = receiver.Storage.Delete(file.ID)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, response.Error{Message: err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusNoContent, nil)
 }
