@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"main/db"
+	"main/models"
 	"main/models/request"
 	"main/models/response"
 	"net/http"
@@ -49,4 +50,32 @@ func (receiver User) Login(context *gin.Context) {
 	}
 
 	context.JSON(http.StatusNoContent, nil)
+}
+
+func (receiver User) Files(context *gin.Context) {
+	email := context.MustGet("email").(string)
+
+	user, err := receiver.UserDB.GetByEmail(email)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, response.Error{Message: err.Error()})
+		return
+	}
+
+	if len(user.Files) == 0 {
+		context.JSON(http.StatusNoContent, nil)
+		return
+	}
+
+	var files response.Files
+
+	for _, file := range user.Files {
+		files.Files = append(files.Files, models.File{
+			ID:         file.ID,
+			Filename:   file.Filename,
+			CreatedAt:  file.CreatedAt,
+			AccessedAt: file.AccessedAt,
+		})
+	}
+
+	context.JSON(http.StatusOK, files)
 }

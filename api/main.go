@@ -75,6 +75,7 @@ func main() {
 	{
 		usersGroup.POST("/register", userController.Register)
 		usersGroup.POST("/login", userController.Login)
+		usersGroup.GET("/files", userController.Files)
 	}
 
 	filesGroup := router.Group("api/v1")
