@@ -8,3 +8,7 @@ server:
 app:
   issuer: ""
   valid: 0
+
+pki:
+  public-key: ""
+  private-key: ""

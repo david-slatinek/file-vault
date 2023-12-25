@@ -23,9 +23,14 @@ func main() {
 		log.Fatalf("error loading config: %v", err)
 	}
 
-	userDb, err := db.New(cfg)
+	userDb, err := db.NewUser(cfg)
 	if err != nil {
 		log.Fatalf("error connecting to users database: %v", err)
+	}
+
+	fileDb, err := db.NewFile(cfg)
+	if err != nil {
+		log.Fatalf("error connecting to files database: %v", err)
 	}
 
 	gin.SetMode(cfg.Server.Mode)
@@ -43,10 +48,20 @@ func main() {
 		UserDB: userDb,
 	}
 
+	fileController := controllers.File{
+		FileDB: fileDb,
+		UserDB: userDb,
+	}
+
 	usersGroup := router.Group("api/v1").Use(auth.ValidateToken)
 	{
 		usersGroup.POST("/register", userController.Register)
 		usersGroup.POST("/login", userController.Login)
+	}
+
+	filesGroup := router.Group("api/v1").Use(auth.ValidateToken)
+	{
+		filesGroup.POST("/upload", fileController.Upload)
 	}
 
 	srv := &http.Server{

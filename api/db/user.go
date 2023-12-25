@@ -15,15 +15,10 @@ import (
 var (
 	UserAlreadyExists         = errors.New("user already exists")
 	UserNotFoundOrInvalidCode = errors.New("user not found or invalid code")
+	UserNotFound              = errors.New("user not found")
 )
 
-type User struct {
-	db        *gorm.DB
-	otpClient *otp.OTP
-	pkiClient *pki.PKI
-}
-
-func New(cfg *config.Config) (*User, error) {
+func NewDB(cfg config.Config) (*gorm.DB, error) {
 	sqlDB, err := sql.Open("pgx", cfg.Database.ConnectionString)
 	if err != nil {
 		return nil, err
@@ -37,6 +32,21 @@ func New(cfg *config.Config) (*User, error) {
 		Conn: sqlDB,
 	}), &gorm.Config{})
 
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
+}
+
+type User struct {
+	db        *gorm.DB
+	otpClient *otp.OTP
+	pkiClient *pki.PKI
+}
+
+func NewUser(cfg *config.Config) (*User, error) {
+	db, err := NewDB(*cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -99,5 +109,23 @@ func (receiver User) Login(email, code string) error {
 		return UserNotFoundOrInvalidCode
 	}
 
+	user.AccessedAt = time.Now()
+	_ = receiver.db.Updates(&user)
+
 	return nil
+}
+
+func (receiver User) GetByEmail(email string) (models.User, error) {
+	user := models.User{}
+
+	result := receiver.db.Where("email = ?", email).First(&user)
+	if result.RowsAffected == 0 {
+		return models.User{}, UserNotFound
+	}
+
+	if result.Error != nil {
+		return models.User{}, result.Error
+	}
+
+	return user, nil
 }
