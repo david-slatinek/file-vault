@@ -38,7 +38,7 @@ func (receiver File) Upload(context *gin.Context) {
 
 	valid, err := receiver.UserDB.ValidCode(user, req.Code)
 	if err != nil || !valid {
-		context.JSON(http.StatusInternalServerError, response.Error{Message: err.Error()})
+		context.JSON(http.StatusBadRequest, response.Error{Message: err.Error()})
 		return
 	}
 

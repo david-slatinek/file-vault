@@ -43,7 +43,7 @@ func main() {
 		log.Fatalf("error connecting to files database: %v", err)
 	}
 
-	stg, err := storage.New(*cfg)
+	stg, err := storage.New(cfg)
 	if err != nil {
 		log.Fatalf("error connecting to storage: %v", err)
 	}
@@ -69,13 +69,15 @@ func main() {
 		Storage: stg,
 	}
 
-	usersGroup := router.Group("api/v1").Use(auth.ValidateToken)
+	router.Use(auth.ValidateToken)
+
+	usersGroup := router.Group("api/v1")
 	{
 		usersGroup.POST("/register", userController.Register)
 		usersGroup.POST("/login", userController.Login)
 	}
 
-	filesGroup := router.Group("api/v1").Use(auth.ValidateToken)
+	filesGroup := router.Group("api/v1")
 	{
 		filesGroup.POST("/upload", fileController.Upload)
 	}

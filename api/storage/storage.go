@@ -17,7 +17,7 @@ type Storage struct {
 	bucketName string
 }
 
-func New(cfg appConfig.Config) (*Storage, error) {
+func New(cfg *appConfig.Config) (*Storage, error) {
 	customResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
 		return aws.Endpoint{
 			URL:           cfg.S3.Endpoint,
@@ -52,7 +52,7 @@ func New(cfg appConfig.Config) (*Storage, error) {
 	return st, nil
 }
 
-func (receiver Storage) createBucketIfNotExists(cfg appConfig.Config) error {
+func (receiver Storage) createBucketIfNotExists(cfg *appConfig.Config) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -60,11 +60,11 @@ func (receiver Storage) createBucketIfNotExists(cfg appConfig.Config) error {
 		Bucket: aws.String(cfg.S3.Bucket),
 	})
 
-	ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
 	if err != nil {
 		log.Println("creating bucket")
+
+		ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
 
 		_, err := receiver.client.CreateBucket(ctx, &s3.CreateBucketInput{
 			Bucket: aws.String(cfg.S3.Bucket),
