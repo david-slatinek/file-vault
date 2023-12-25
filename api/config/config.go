@@ -28,6 +28,10 @@ type Config struct {
 		AwsSecretAccessKey string `mapstructure:"aws-secret-access-key"`
 		AwsDefaultRegion   string `mapstructure:"aws-default-region"`
 	}
+	TLS struct {
+		Cert string `mapstructure:"certificate"`
+		Key  string
+	}
 }
 
 func NewConfig(path, filename, filetype string) (*Config, error) {

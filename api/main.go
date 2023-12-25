@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"flag"
 	"github.com/gin-gonic/gin"
@@ -85,17 +86,24 @@ func main() {
 		filesGroup.DELETE("/delete/:id", fileController.Delete)
 	}
 
+	cer, err := tls.LoadX509KeyPair(cfg.TLS.Cert, cfg.TLS.Key)
+	if err != nil {
+		log.Fatalf("error loading tls certificate: %v", err)
+	}
+	tlsConfig := &tls.Config{Certificates: []tls.Certificate{cer}}
+
 	srv := &http.Server{
 		Addr:         cfg.Server.Address,
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
 		Handler:      router,
+		TLSConfig:    tlsConfig,
 	}
 
 	go func() {
 		log.Println("server is up at: " + srv.Addr)
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		if err := srv.ListenAndServeTLS("", ""); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Printf("ListenAndServe() error: %s\n", err)
 		}
 	}()

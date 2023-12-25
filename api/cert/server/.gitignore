@@ -1,0 +1,5 @@
+server-key.pem
+server-req.pem
+server-config.cnf
+server-ext.cnf
+server-cert.pem
