@@ -7,6 +7,7 @@ import (
 	"golang.org/x/crypto/sha3"
 	"log"
 	"main/db"
+	"main/models"
 	"main/models/request"
 	"main/models/response"
 	"main/storage"
@@ -115,4 +116,59 @@ func (receiver File) Upload(context *gin.Context) {
 	}
 
 	context.JSON(http.StatusCreated, gin.H{"fileID": id})
+}
+
+func (receiver File) Download(context *gin.Context) {
+	email := context.MustGet("email").(string)
+
+	user, err := receiver.UserDB.GetByEmail(email)
+	if errors.Is(err, db.UserNotFound) {
+		context.JSON(http.StatusBadRequest, response.Error{Message: err.Error()})
+		return
+	} else if err != nil {
+		context.JSON(http.StatusInternalServerError, response.Error{Message: err.Error()})
+		return
+	}
+
+	var req request.FileDownload
+	if err := context.ShouldBindJSON(&req); err != nil {
+		context.JSON(http.StatusBadRequest, response.Error{Message: err.Error()})
+		return
+	}
+
+	validPassword := validator.ValidatePassword(req.Password)
+	if !validPassword {
+		context.JSON(http.StatusBadRequest, response.Error{Message: validator.InvalidPassword})
+		return
+	}
+
+	valid, err := receiver.UserDB.ValidCode(user, req.Code)
+	if err != nil || !valid {
+		context.JSON(http.StatusBadRequest, response.Error{Message: err.Error()})
+		return
+	}
+
+	var file = models.File{}
+	id := context.Param("id")
+
+	for _, value := range user.Files {
+		if value.ID == id {
+			file = value
+			break
+		}
+	}
+
+	if file.ID == "" {
+		context.JSON(http.StatusBadRequest, response.Error{Message: "file does not exist"})
+		return
+	}
+
+	plaintext, err := receiver.Storage.Download(file.ID, req.Password, file.Salt)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, response.Error{Message: err.Error()})
+		return
+	}
+
+	context.Header("Content-Disposition", "attachment; filename="+file.Filename)
+	context.Data(http.StatusOK, "application/octet-stream", plaintext)
 }

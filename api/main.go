@@ -80,6 +80,7 @@ func main() {
 	filesGroup := router.Group("api/v1")
 	{
 		filesGroup.POST("/upload", fileController.Upload)
+		filesGroup.GET("/download/:id", fileController.Download)
 	}
 
 	srv := &http.Server{
