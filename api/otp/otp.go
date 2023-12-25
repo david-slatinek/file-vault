@@ -11,7 +11,7 @@ type OTP struct {
 	options totp.GenerateOpts
 }
 
-func New(cfg *config.Config) *OTP {
+func NewOtp(cfg *config.Config) *OTP {
 	return &OTP{
 		options: totp.GenerateOpts{
 			Issuer:    cfg.App.Issuer,
@@ -26,7 +26,6 @@ func (receiver OTP) GenerateOTP(email string) (string, string, error) {
 	receiver.options.AccountName = email
 
 	key, err := totp.Generate(receiver.options)
-
 	if err != nil {
 		return "", "", err
 	}

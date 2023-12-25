@@ -37,8 +37,11 @@ func (receiver User) Login(context *gin.Context) {
 
 	err := receiver.UserDB.Login(context.MustGet("email").(string), req.Code)
 
-	if errors.Is(err, db.UserNotFoundOrInvalidCode) {
-		context.JSON(http.StatusBadRequest, response.Error{Message: db.UserNotFoundOrInvalidCode.Error()})
+	if errors.Is(err, db.UserNotFound) {
+		context.JSON(http.StatusBadRequest, response.Error{Message: db.UserNotFound.Error()})
+		return
+	} else if errors.Is(err, db.InvalidCode) {
+		context.JSON(http.StatusBadRequest, response.Error{Message: db.InvalidCode.Error()})
 		return
 	} else if err != nil {
 		context.JSON(http.StatusInternalServerError, response.Error{Message: err.Error()})

@@ -13,9 +13,9 @@ import (
 )
 
 var (
-	UserAlreadyExists         = errors.New("user already exists")
-	UserNotFoundOrInvalidCode = errors.New("user not found or invalid code")
-	UserNotFound              = errors.New("user not found")
+	UserAlreadyExists = errors.New("user already exists")
+	InvalidCode       = errors.New("invalid code")
+	UserNotFound      = errors.New("user not found")
 )
 
 func NewDB(cfg config.Config) (*gorm.DB, error) {
@@ -51,14 +51,14 @@ func NewUser(cfg *config.Config) (*User, error) {
 		return nil, err
 	}
 
-	p, err := pki.New(*cfg)
+	p, err := pki.NewPKI(*cfg)
 	if err != nil {
 		return nil, err
 	}
 
 	return &User{
 		db:        db,
-		otpClient: otp.New(cfg),
+		otpClient: otp.NewOtp(cfg),
 		pkiClient: p,
 	}, nil
 }
@@ -97,12 +97,12 @@ func (receiver User) Login(email, code string) error {
 	result := receiver.db.Where("email = ?", email).First(&user)
 
 	if result.RowsAffected == 0 {
-		return UserNotFoundOrInvalidCode
+		return UserNotFound
 	}
 
 	valid, err := receiver.ValidCode(user, code)
 	if err != nil || !valid {
-		return UserNotFoundOrInvalidCode
+		return InvalidCode
 	}
 
 	user.AccessedAt = time.Now()
@@ -133,7 +133,7 @@ func (receiver User) ValidCode(user models.User, code string) (bool, error) {
 	}
 
 	if !receiver.otpClient.Valid(code, secret) {
-		return false, UserNotFoundOrInvalidCode
+		return false, InvalidCode
 	}
 
 	return true, nil

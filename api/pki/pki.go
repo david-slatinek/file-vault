@@ -18,7 +18,7 @@ type PKI struct {
 	privateKey *rsa.PrivateKey
 }
 
-func New(cfg config.Config) (*PKI, error) {
+func NewPKI(cfg config.Config) (*PKI, error) {
 	publicKeyExists, privateKeyExists := false, false
 
 	public, err := os.ReadFile(cfg.PKI.PublicKey)
