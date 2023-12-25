@@ -114,7 +114,7 @@ func (receiver User) Login(email, code string) error {
 func (receiver User) GetByEmail(email string) (models.User, error) {
 	user := models.User{}
 
-	result := receiver.db.Where("email = ?", email).First(&user)
+	result := receiver.db.Where("email = ?", email).Preload("Files").First(&user)
 	if result.RowsAffected == 0 {
 		return models.User{}, UserNotFound
 	}

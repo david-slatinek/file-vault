@@ -5,10 +5,12 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/sha3"
+	"log"
 	"main/db"
 	"main/models/request"
 	"main/models/response"
 	"main/storage"
+	"main/validator"
 	"net/http"
 )
 
@@ -33,6 +35,12 @@ func (receiver File) Upload(context *gin.Context) {
 	var req request.FileUpload
 	if err := context.ShouldBind(&req); err != nil {
 		context.JSON(http.StatusBadRequest, response.Error{Message: err.Error()})
+		return
+	}
+
+	validPassword := validator.ValidatePassword(req.Password)
+	if !validPassword {
+		context.JSON(http.StatusBadRequest, response.Error{Message: validator.InvalidPassword})
 		return
 	}
 
@@ -65,14 +73,43 @@ func (receiver File) Upload(context *gin.Context) {
 
 	id := hex.EncodeToString(hash.Sum(nil))
 
-	err = receiver.FileDB.Create(user.ID, id)
+	for _, value := range user.Files {
+		if value.ID == id {
+			context.JSON(http.StatusBadRequest, response.Error{Message: "file already exists"})
+			return
+		}
+	}
+
+	createdFile, err := receiver.FileDB.Create(user.ID, id, req.File.Filename)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, response.Error{Message: err.Error()})
 		return
 	}
 
-	err = receiver.Storage.Upload(id, buf)
+	salt, err := receiver.Storage.Upload(id, req.Password, buf)
 	if err != nil {
+		err = receiver.FileDB.Delete(createdFile)
+		if err != nil {
+			log.Printf("failed to delete file: %s\n", err)
+		}
+
+		context.JSON(http.StatusInternalServerError, response.Error{Message: err.Error()})
+		return
+	}
+	createdFile.Salt = salt
+
+	err = receiver.FileDB.UpdateSalt(createdFile, salt)
+	if err != nil {
+		err = receiver.FileDB.Delete(createdFile)
+		if err != nil {
+			log.Printf("failed to delete file: %s\n", err)
+		}
+
+		err = receiver.Storage.Delete(id)
+		if err != nil {
+			log.Printf("failed to delete file: %s\n", err)
+		}
+
 		context.JSON(http.StatusInternalServerError, response.Error{Message: err.Error()})
 		return
 	}

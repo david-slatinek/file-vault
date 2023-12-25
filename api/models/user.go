@@ -8,4 +8,5 @@ type User struct {
 	Secret     string    `gorm:"unique"`
 	CreatedAt  time.Time `gorm:"autoCreateTime"`
 	AccessedAt time.Time `gorm:"default:now()"`
+	Files      []File    `gorm:"foreignKey:user_id"`
 }
