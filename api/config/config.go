@@ -30,9 +30,9 @@ type Config struct {
 	}
 }
 
-func NewConfig() (*Config, error) {
+func NewConfig(path, filename, filetype string) (*Config, error) {
 	cfg := &Config{}
-	err := cfg.loadConfig()
+	err := cfg.loadConfig(path, filename, filetype)
 
 	if err != nil {
 		return nil, err
@@ -46,9 +46,10 @@ func NewConfig() (*Config, error) {
 	return cfg, nil
 }
 
-func (receiver *Config) loadConfig() error {
-	viper.SetConfigName("config")
-	viper.AddConfigPath("./config")
+func (receiver *Config) loadConfig(path, filename, filetype string) error {
+	viper.SetConfigName(filename)
+	viper.AddConfigPath(path)
+	viper.SetConfigType(filetype)
 
 	if err := viper.ReadInConfig(); err != nil {
 		return err

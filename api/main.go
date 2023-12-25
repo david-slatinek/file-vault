@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"github.com/gin-gonic/gin"
 	"log"
 	"main/auth"
@@ -18,8 +19,16 @@ import (
 	"time"
 )
 
+var (
+	configPathFlag = flag.String("config", "./config", "path to config file")
+	configFileFlag = flag.String("file", "config", "config file name")
+	configTypeFlag = flag.String("type", "yaml", "config file extension")
+)
+
 func main() {
-	cfg, err := config.NewConfig()
+	flag.Parse()
+
+	cfg, err := config.NewConfig(*configPathFlag, *configFileFlag, *configTypeFlag)
 	if err != nil {
 		log.Fatalf("error loading config: %v", err)
 	}

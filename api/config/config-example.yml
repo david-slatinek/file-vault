@@ -12,3 +12,10 @@ app:
 pki:
   public-key: ""
   private-key: ""
+
+s3:
+  endpoint: ""
+  bucket: ""
+  aws-access-key-id: ""
+  aws-secret-access-key: ""
+  aws-default-region: ""
