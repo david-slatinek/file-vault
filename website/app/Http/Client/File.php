@@ -31,4 +31,16 @@ class File
 
         return [[], $response->status() . " - " . $response->body()];
     }
+
+    public static function deleteFile(string $id, string $code): string
+    {
+        $response = Http::withoutVerifying()->withToken(session("token"))->delete(env("BASE_URL")
+            . "/delete/" . $id, ["code" => $code]);
+
+        if ($response->noContent()) {
+            return "";
+        }
+
+        return $response->status() . " - " . $response->body();
+    }
 }
