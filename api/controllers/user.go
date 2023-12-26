@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"encoding/base64"
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/skip2/go-qrcode"
 	"main/db"
 	"main/models"
 	"main/models/request"
@@ -25,7 +27,15 @@ func (receiver User) Register(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusCreated, response.OTP{Key: key, URL: url})
+	png, err := qrcode.Encode(url, qrcode.Medium, 256)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, response.Error{Message: err.Error()})
+		return
+	}
+
+	pngBase64 := base64.StdEncoding.EncodeToString(png)
+
+	context.JSON(http.StatusCreated, response.OTP{Key: key, URL: pngBase64})
 }
 
 func (receiver User) Login(context *gin.Context) {
