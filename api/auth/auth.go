@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-github/v57/github"
 	"golang.org/x/oauth2"
+	"log"
 	"main/models/response"
 	"net/http"
 	"strings"
@@ -25,6 +26,8 @@ func ValidateToken(c *gin.Context) {
 		c.Abort()
 		return
 	}
+
+	log.Printf("token: %s", values[1])
 
 	email, err := getEmail(values[1])
 	if err != nil {

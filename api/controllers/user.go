@@ -79,11 +79,11 @@ func (receiver User) Files(context *gin.Context) {
 	var files response.Files
 
 	for _, file := range user.Files {
-		files.Files = append(files.Files, models.File{
+		files.Files = append(files.Files, models.FileDto{
 			ID:         file.ID,
 			Filename:   file.Filename,
-			CreatedAt:  file.CreatedAt,
-			AccessedAt: file.AccessedAt,
+			CreatedAt:  file.CreatedAt.Format("2006-01-02 15:04:05"),
+			AccessedAt: file.AccessedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
 
