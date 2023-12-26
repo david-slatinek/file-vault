@@ -50,7 +50,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Session File Location
+    | Session FileModel.php Location
     |--------------------------------------------------------------------------
     |
     | When using the native session driver, we need a location where session

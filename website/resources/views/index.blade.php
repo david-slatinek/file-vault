@@ -1,4 +1,4 @@
-@extends("layout", ["title" => "File Vault"])
+@extends("layout", ["title" => "FileModel.php Vault"])
 
 @section("content")
     <body class="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-slate-400 to-sky-400">

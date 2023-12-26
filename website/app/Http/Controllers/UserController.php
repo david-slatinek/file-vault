@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Client\File;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Routing\Redirector;
 
 class UserController extends BaseController
 {
@@ -18,14 +22,20 @@ class UserController extends BaseController
         return view("setup", ["otp" => $otp]);
     }
 
-    public function login(): View
-    {
-        return view("login");
-    }
+//    public function login(): View
+//    {
+//        return view("login");
+//    }
 
-    public function home(): View
+    public function home(): Application|RedirectResponse|Redirector|View
     {
-        return view("home");
+        [$files, $err] = File::getFiles();
+
+        if ($err != null) {
+            return redirect("/")->with("error", $err);
+        }
+
+        return view("home", ["files" => $files]);
     }
 
     public function upload(): View
