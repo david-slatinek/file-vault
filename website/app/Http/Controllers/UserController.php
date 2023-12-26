@@ -14,7 +14,8 @@ class UserController extends BaseController
 
     public function setup(): View
     {
-        return view("setup");
+        $otp = session("otp");
+        return view("setup", ["otp" => $otp]);
     }
 
     public function login(): View

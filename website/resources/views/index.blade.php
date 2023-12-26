@@ -1,27 +1,28 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://cdn.tailwindcss.com"></script>
+@extends("layout", ["title" => "File Vault"])
 
-    <title>File Vault</title>
-</head>
+@section("content")
+    <body class="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-slate-400 to-sky-400">
 
-<body class="flex items-center justify-center h-screen bg-gradient-to-r from-slate-400 to-sky-400">
+    @if (Session::has("error"))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+            <h3 class="block sm:inline">{{ Session::get("error") }}</h3>
+        </div>
+    @endif
 
-<div class="bg-white p-8 rounded shadow-md w-96">
-    <h1 class="text-3xl font-semibold mb-6 text-center text-gray-800">Login with Github</h1>
+    <div class="bg-white p-8 rounded shadow-md w-96">
+        <h1 class="text-3xl font-semibold mb-6 text-center text-gray-800">Login with Github</h1>
 
-    <div class="flex items-center justify-center">
-        <button class="bg-gradient-to-r from-blue-500 to-red-400 hover:from-blue-600 hover:to-teal-500 text-white
+        <div class="flex items-center justify-center">
+            <a href="/github/redirect">
+                <button class="bg-gradient-to-r from-blue-500 to-red-400 hover:from-blue-600 hover:to-teal-500 text-white
             font-bold py-3 px-10 rounded-full focus:outline-none focus:shadow-outline-blue active:from-blue-800
             active:to-teal-700">
-            Login
-        </button>
+                    Login
+                </button>
+            </a>
+        </div>
     </div>
-</div>
 
-</body>
+    </body>
 
-</html>
+@endsection
