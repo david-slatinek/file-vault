@@ -15,6 +15,7 @@
         <div class="flex space-x-4">
             <a href="{{route("user.file")}}" class="text-white mr-5">Files</a>
             <a href="{{route("file.upload-form")}}" class="text-white">Upload</a>
+            <a href="{{route("user.logout")}}" class="text-white">Logout</a>
         </div>
     </div>
 </nav>

@@ -69,4 +69,18 @@ class File
 
         return $response->status() . " - " . $response->body();
     }
+
+    public static function downloadFile(string $id, string $password, string $code): array
+    {
+        $response = Http::withoutVerifying()->withToken(session("token"))->post(env("BASE_URL") .
+            "/download/" . $id, ["password" => $password, "code" => $code]);
+
+        if ($response->ok()) {
+            $contentType = $response->header("Content-Type");
+            $contentDisposition = $response->header("Content-Disposition");
+            return [$response->body(), $contentType, $contentDisposition, null];
+        }
+
+        return [null, null, null, $response->status() . " - " . $response->body()];
+    }
 }

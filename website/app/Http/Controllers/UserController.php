@@ -32,4 +32,10 @@ class UserController extends BaseController
 
         return view("file", ["files" => $files]);
     }
+
+    public function logout(): RedirectResponse|Redirector
+    {
+        session()->flush();
+        return redirect()->route("user.home");
+    }
 }

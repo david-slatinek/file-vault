@@ -26,16 +26,20 @@
                     <td class="py-2 px-4 border-b">{{$file->createdAt}}</td>
                     <td class="py-2 px-4 border-b">{{$file->accessedAt}}</td>
                     <td class="py-2 px-4 border-b">
-                        <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-full
-                            focus:outline-none focus:shadow-outline-blue active:bg-blue-800">
-                            Download
-                        </button>
+                        <form action="{{route("file.download-form", $file->id)}}" method="get" class="inline">
+                            @csrf
+                            @method("get")
+                            <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-full
+                                    focus:outline-none focus:shadow-outline-blue active:bg-blue-800">
+                                Download
+                            </button>
+                        </form>
 
                         <form action="{{route("file.delete-form", $file->id)}}" method="post" class="inline">
                             @csrf
                             @method("delete")
                             <button class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded-full
-                            focus:outline-none focus:shadow-outline-red active:bg-red-800">
+                                    focus:outline-none focus:shadow-outline-red active:bg-red-800">
                                 Delete
                             </button>
                         </form>
