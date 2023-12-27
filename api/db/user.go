@@ -95,7 +95,10 @@ func (receiver User) Register(email string) (string, string, error) {
 func (receiver User) GetByEmail(email string) (models.User, error) {
 	user := models.User{}
 
-	result := receiver.db.Where("email = ?", email).Preload("Files").First(&user)
+	result := receiver.db.Where("email = ?", email).Preload("Files", func(db *gorm.DB) *gorm.DB {
+		return db.Order("accessed_at desc")
+	}).First(&user)
+
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return models.User{}, UserNotFound
 	}
