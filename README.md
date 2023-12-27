@@ -27,6 +27,5 @@ Github OAuth.
   <br/>
   <i>Home page.</i>
 </div>
-<br/>
 
 For additional images, see the [images](images) folder.
