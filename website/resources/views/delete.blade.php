@@ -1,13 +1,13 @@
-@extends("layout", ["title" => "Home"])
+@extends("layout", ["title" => "Delete file"])
 
 @section("content")
     <body class="flex items-center justify-center h-screen bg-gradient-to-r from-violet-300 to-cyan-950">
 
     <div class="bg-white p-8 rounded shadow-md w-96 text-center">
 
-        <h1 class="text-2xl font-semibold mb-4">Confirm delete</h1>
+        <h1 class="text-2xl font-semibold mb-4 text-red-600">Confirm delete</h1>
 
-        <form action="{{route("delete", $id)}}" method="post">
+        <form action="{{route("file.delete", $id)}}" method="post">
             @csrf
             @method("delete")
 

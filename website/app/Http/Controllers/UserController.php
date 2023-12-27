@@ -11,9 +11,9 @@ use Illuminate\Routing\Redirector;
 
 class UserController extends BaseController
 {
-    public function index(): View
+    public function home(): View
     {
-        return view("index");
+        return view("home");
     }
 
     public function setup(): View
@@ -22,20 +22,15 @@ class UserController extends BaseController
         return view("setup", ["otp" => $otp]);
     }
 
-//    public function login(): View
-//    {
-//        return view("login");
-//    }
-
-    public function home(): Application|RedirectResponse|Redirector|View
+    public function file(): Application|RedirectResponse|Redirector|View
     {
         [$files, $err] = File::getFiles();
 
         if ($err != null) {
-            return redirect("/")->with("error", $err);
+            return redirect()->route("error.error")->with("error", $err);
         }
 
-        return view("home", ["files" => $files]);
+        return view("file", ["files" => $files]);
     }
 
     public function upload(): View

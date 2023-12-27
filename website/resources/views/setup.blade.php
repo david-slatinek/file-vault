@@ -1,8 +1,8 @@
 @extends("layout", ["title" => "2FA Setup"])
 
-@section("content")
-    <body class="flex items-center justify-center h-screen bg-gray-100 bg-gradient-to-r from-cyan-300 to-blue-600">
+<body class="flex items-center justify-center h-screen bg-gray-100 bg-gradient-to-r from-cyan-300 to-blue-600">
 
+@section("content")
     <div class="bg-white p-8 rounded shadow-md w-100 text-center">
 
         <img src="data:image/png;base64, {{$otp->url}}" alt="QR code" class="mb-4 mx-auto">
@@ -18,17 +18,17 @@
 
         <div class="flex justify-between items-center">
             <div></div>
-            <a href="/home">
+            <a href="{{route("user.file")}}">
                 <button
                     class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full focus:outline-none
-            focus:shadow-outline-blue active:bg-blue-800">
+                        focus:shadow-outline-blue active:bg-blue-800">
                     Next
                 </button>
             </a>
         </div>
 
     </div>
-
-    </body>
-
 @endsection
+
+</body>
+

@@ -14,11 +14,11 @@ class User
         if ($response->created()) {
             $otp = new Otp();
             $otp->set($response->json());
-            return [$otp, ""];
+            return [$otp, "setup"];
         }
 
         if ($response->badRequest()) {
-            return [null, "home"];
+            return [null, "file"];
         }
 
         return [null, $response->status() . " - " . $response->body()];

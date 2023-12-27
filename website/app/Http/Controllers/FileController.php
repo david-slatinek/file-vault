@@ -20,11 +20,9 @@ class FileController extends BaseController
         $err = File::deleteFile($id, $code);
 
         if ($err !== "") {
-            return redirect("error")->with("error", $err);
-
-//            return view("error", ["error" => $err]);
+            return redirect()->route("error.error")->with("error", $err);
         }
 
-        return redirect("/home");
+        return redirect()->route("user.file");
     }
 }

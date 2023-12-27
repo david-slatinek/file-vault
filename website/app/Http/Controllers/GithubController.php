@@ -20,7 +20,8 @@ class GithubController extends BaseController
         try {
             $user = Socialite::driver("github")->user();
         } catch (Exception) {
-            return redirect("/")->with("error", "You must allow the application to access your GitHub account.");
+            return redirect()->route("error.error")->with("error", "You must allow the application to access your
+                GitHub account.");
         }
 
         $token = $user->token;
@@ -28,14 +29,14 @@ class GithubController extends BaseController
 
         [$otp, $err] = User::register();
 
-        if ($otp != null) {
-            return redirect()->route("setup")->with("otp", $otp);
+        if ($err == "setup") {
+            return redirect()->route("user.setup")->with("otp", $otp);
         }
 
-        if ($err == "home") {
-            return redirect()->route("home");
+        if ($err == "file") {
+            return redirect()->route("user.file");
         }
 
-        return redirect("/")->with("error", $err);
+        return redirect()->route("error.error")->with("error", $err);
     }
 }
