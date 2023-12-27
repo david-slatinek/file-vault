@@ -43,4 +43,30 @@ class File
 
         return $response->status() . " - " . $response->body();
     }
+
+    public static function uploadFile(string $file, string $password, string $code): string
+    {
+        $multipart = [
+            [
+                "name" => "file",
+                "contents" => fopen($file, "r")
+            ],
+            [
+                "name" => "password",
+                "contents" => $password
+            ],
+            [
+                "name" => "code",
+                "contents" => $code
+            ]
+        ];
+
+        $response = Http::withoutVerifying()->withToken(session("token"))->attach($multipart)->post(env("BASE_URL") . "/upload");
+
+        if ($response->created()) {
+            return "";
+        }
+
+        return $response->status() . " - " . $response->body();
+    }
 }

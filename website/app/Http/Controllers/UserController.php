@@ -32,9 +32,4 @@ class UserController extends BaseController
 
         return view("file", ["files" => $files]);
     }
-
-    public function upload(): View
-    {
-        return view("upload");
-    }
 }
