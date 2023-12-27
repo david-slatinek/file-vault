@@ -1,15 +1,16 @@
 @extends("layout", ["title" => "2FA Setup"])
 
-<body class="flex items-center justify-center h-screen bg-gray-100 bg-gradient-to-r from-cyan-300 to-blue-600">
+<body class="flex items-center justify-center h-screen bg-gray-100 bg-gradient-to-r from-cyan-600 to-blue-700">
 
 @section("content")
     <div class="bg-white p-8 rounded shadow-md w-100 text-center">
 
-        <img src="data:image/png;base64, {{$otp->url}}" alt="QR code" class="mb-4 mx-auto">
-
-        <div>
-            <h1 class="text-2xl font-semibold mb-6 text-center text-gray-800">{{$otp->key}}</h1>
-        </div>
+        @if($otp)
+            <img src="data:image/png;base64, {{$otp->url}}" alt="QR code" class="mb-4 mx-auto">
+            <div>
+                <h1 class="text-2xl font-semibold mb-6 text-center text-gray-800">{{$otp->key}}</h1>
+            </div>
+        @endif
 
         <div>
             <p class="text-gray-700 mb-4">Please scan the QR code with your 2FA app or enter the code manually.</p>

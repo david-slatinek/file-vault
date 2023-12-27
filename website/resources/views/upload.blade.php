@@ -1,6 +1,6 @@
 @extends("layout", ["title" => "Upload"])
 
-<body class="flex items-center justify-center h-screen bg-gradient-to-r from-yellow-100 to-lime-800">
+<body class="flex items-center justify-center h-screen bg-gradient-to-r from-blue-300 to-lime-800">
 
 @section("content")
     <div class="p-8 rounded shadow-md container mx-auto max-w-lg bg-white">

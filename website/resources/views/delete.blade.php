@@ -1,6 +1,6 @@
 @extends("layout", ["title" => "Delete file"])
 
-<body class="flex items-center justify-center h-screen bg-gradient-to-r from-violet-300 to-cyan-950">
+<body class="flex items-center justify-center h-screen bg-gradient-to-r from-slate-500 to-cyan-800">
 
 @section("content")
     <div class="bg-white p-8 rounded shadow-md w-96 text-center">

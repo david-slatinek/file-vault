@@ -1,6 +1,6 @@
 @extends("layout", ["title" => "Download"])
 
-<body class="flex items-center justify-center h-screen bg-gradient-to-r from-yellow-100 to-lime-800">
+<body class="flex items-center justify-center h-screen bg-gradient-to-r from-zinc-400 to-emerald-700">
 
 <div class="p-8 bg-white rounded shadow-md container mx-auto max-w-lg">
     <h1 class="text-2xl font-semibold mb-4">File Download</h1>
