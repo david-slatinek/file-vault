@@ -92,30 +92,11 @@ func (receiver User) Register(email string) (string, string, error) {
 	return secret, url, nil
 }
 
-func (receiver User) Login(email, code string) error {
-	user := models.User{}
-	result := receiver.db.Where("email = ?", email).First(&user)
-
-	if result.RowsAffected == 0 {
-		return UserNotFound
-	}
-
-	valid, err := receiver.ValidCode(user, code)
-	if err != nil || !valid {
-		return InvalidCode
-	}
-
-	user.AccessedAt = time.Now()
-	_ = receiver.db.Updates(&user)
-
-	return nil
-}
-
 func (receiver User) GetByEmail(email string) (models.User, error) {
 	user := models.User{}
 
 	result := receiver.db.Where("email = ?", email).Preload("Files").First(&user)
-	if result.RowsAffected == 0 {
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return models.User{}, UserNotFound
 	}
 
@@ -137,4 +118,8 @@ func (receiver User) ValidCode(user models.User, code string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (receiver User) UpdateAccessedAt(user models.User) error {
+	return receiver.db.Model(&user).Update("accessed_at", "now()").Error
 }

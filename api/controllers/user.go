@@ -7,9 +7,9 @@ import (
 	"github.com/skip2/go-qrcode"
 	"main/db"
 	"main/models"
-	"main/models/request"
 	"main/models/response"
 	"net/http"
+	"time"
 )
 
 type User struct {
@@ -38,30 +38,6 @@ func (receiver User) Register(context *gin.Context) {
 	context.JSON(http.StatusCreated, response.OTP{Key: key, URL: pngBase64})
 }
 
-func (receiver User) Login(context *gin.Context) {
-	var req request.Login
-
-	if err := context.ShouldBindJSON(&req); err != nil {
-		context.JSON(http.StatusBadRequest, response.Error{Message: err.Error()})
-		return
-	}
-
-	err := receiver.UserDB.Login(context.MustGet("email").(string), req.Code)
-
-	if errors.Is(err, db.UserNotFound) {
-		context.JSON(http.StatusBadRequest, response.Error{Message: db.UserNotFound.Error()})
-		return
-	} else if errors.Is(err, db.InvalidCode) {
-		context.JSON(http.StatusBadRequest, response.Error{Message: db.InvalidCode.Error()})
-		return
-	} else if err != nil {
-		context.JSON(http.StatusInternalServerError, response.Error{Message: err.Error()})
-		return
-	}
-
-	context.JSON(http.StatusNoContent, nil)
-}
-
 func (receiver User) Files(context *gin.Context) {
 	email := context.MustGet("email").(string)
 
@@ -70,6 +46,9 @@ func (receiver User) Files(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, response.Error{Message: err.Error()})
 		return
 	}
+
+	user.AccessedAt = time.Now()
+	_ = receiver.UserDB.UpdateAccessedAt(user)
 
 	if len(user.Files) == 0 {
 		context.JSON(http.StatusNoContent, nil)
