@@ -8,6 +8,8 @@
     <img alt="tailwindcss" src="https://img.shields.io/badge/tailwind_css-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white"/>
 </div>
 
+## Description
+
 File Vault is a simple, secure file storage service that allows you to upload, download, and delete files.
 
 ## API
