@@ -26,3 +26,4 @@ config.yml
 db/data
 config/keys
 storage/localstack
+main

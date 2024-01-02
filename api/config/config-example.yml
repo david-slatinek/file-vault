@@ -23,3 +23,10 @@ s3:
 tls:
   certificate: ""
   key: ""
+
+vault:
+  address: ""
+  token: ""
+  mount-path: ""
+  public-path: ""
+  private-path: ""

@@ -1,37 +1,59 @@
 package pki
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
+	vault "github.com/hashicorp/vault/api"
 	"golang.org/x/crypto/sha3"
 	"log"
 	"main/config"
-	"os"
+	"time"
 )
 
 type PKI struct {
 	PublicKey  *rsa.PublicKey
 	privateKey *rsa.PrivateKey
+	client     *vault.Client
 }
 
 func NewPKI(cfg config.Config) (*PKI, error) {
 	publicKeyExists, privateKeyExists := false, false
 
-	public, err := os.ReadFile(cfg.PKI.PublicKey)
+	vaultConfig := vault.DefaultConfig()
+	vaultConfig.Address = cfg.Vault.Address
+
+	client, err := vault.NewClient(vaultConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	client.SetToken(cfg.Vault.Token)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	public, err := client.KVv2(cfg.Vault.MountPath).Get(ctx, cfg.Vault.PublicPath)
 	if err == nil {
 		publicKeyExists = true
 	}
 
-	private, err := os.ReadFile(cfg.PKI.PrivateKey)
+	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	private, err := client.KVv2(cfg.Vault.MountPath).Get(ctx, cfg.Vault.PrivatePath)
 	if err == nil {
 		privateKeyExists = true
 	}
 
-	p := &PKI{}
+	p := &PKI{
+		client: client,
+	}
 
 	if !publicKeyExists && !privateKeyExists {
 		log.Printf("generating new keys")
@@ -41,12 +63,12 @@ func NewPKI(cfg config.Config) (*PKI, error) {
 			return nil, err
 		}
 
-		err = p.writePublicKey(cfg.PKI.PublicKey)
+		err = p.writePublicKey(cfg.Vault.MountPath, cfg.Vault.PublicPath)
 		if err != nil {
 			return nil, err
 		}
 
-		err = p.writePrivateKey(cfg.PKI.PrivateKey)
+		err = p.writePrivateKey(cfg.Vault.MountPath, cfg.Vault.PrivatePath)
 		if err != nil {
 			return nil, err
 		}
@@ -57,12 +79,32 @@ func NewPKI(cfg config.Config) (*PKI, error) {
 	} else {
 		log.Printf("reading keys")
 
-		err = p.readPublicKey(public)
+		valuePublic, ok := public.Data[cfg.Vault.PublicPath].(string)
+		if !ok {
+			return nil, errors.New("public key not found")
+		}
+
+		data, err := base64.StdEncoding.DecodeString(valuePublic)
 		if err != nil {
 			return nil, err
 		}
 
-		err = p.readPrivateKey(private)
+		err = p.readPublicKey(data)
+		if err != nil {
+			return nil, err
+		}
+
+		valuePrivate, ok := private.Data[cfg.Vault.PrivatePath].(string)
+		if !ok {
+			return nil, errors.New("private key not found")
+		}
+
+		data, err = base64.StdEncoding.DecodeString(valuePrivate)
+		if err != nil {
+			return nil, err
+		}
+
+		err = p.readPrivateKey(data)
 		if err != nil {
 			return nil, err
 		}
@@ -81,22 +123,46 @@ func (receiver *PKI) generateKeys() error {
 	return nil
 }
 
-func (receiver *PKI) writePublicKey(path string) error {
+func (receiver *PKI) writePublicKey(mountPath, publicPath string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
 	block := &pem.Block{
 		Type:  "BEGIN RSA PUBLIC KEY",
 		Bytes: x509.MarshalPKCS1PublicKey(receiver.PublicKey),
 	}
 
-	return os.WriteFile(path, pem.EncodeToMemory(block), 0600)
+	data := map[string]interface{}{
+		publicPath: base64.StdEncoding.EncodeToString(pem.EncodeToMemory(block)),
+	}
+
+	_, err := receiver.client.KVv2(mountPath).Put(ctx, publicPath, data)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (receiver *PKI) writePrivateKey(path string) error {
+func (receiver *PKI) writePrivateKey(mountPath, privatePath string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
 	block := &pem.Block{
 		Type:  "BEGIN RSA PRIVATE KEY",
 		Bytes: x509.MarshalPKCS1PrivateKey(receiver.privateKey),
 	}
 
-	return os.WriteFile(path, pem.EncodeToMemory(block), 0600)
+	data := map[string]interface{}{
+		privatePath: base64.StdEncoding.EncodeToString(pem.EncodeToMemory(block)),
+	}
+
+	_, err := receiver.client.KVv2(mountPath).Put(ctx, privatePath, data)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (receiver *PKI) readPublicKey(data []byte) error {

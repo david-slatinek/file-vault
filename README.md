@@ -5,7 +5,8 @@
     <img alt="Amazon S3" src="https://img.shields.io/badge/amazon_s3-569A31?style=for-the-badge&logo=amazons3&logoColor=white"/>
     <img alt="PostgreSQL" src="https://img.shields.io/badge/postgresql-4169E1?style=for-the-badge&logo=postgresql&logoColor=white"/>
     <img alt="GNU Bash" src="https://img.shields.io/badge/gnu_bash-4EAA25?style=for-the-badge&logo=gnubash&logoColor=white"/>
-    <img alt="tailwindcss" src="https://img.shields.io/badge/tailwind_css-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white"/>
+    <img alt="Tailwind CSS" src="https://img.shields.io/badge/tailwind_css-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white"/>
+    <img alt="Vault" src="https://img.shields.io/badge/vault-FFEC6E?style=for-the-badge&logo=vault&logoColor=white"/>
 </div>
 
 ## Description
@@ -17,7 +18,7 @@ File Vault is a simple, secure file storage service that allows you to upload, d
 [API](api) was made using Go, along with the PostgreSQL [database](api/db). Files are stored
 in [Localstack S3](api/storage) and are encrypted using AES-256-GCM. For deriving the encryption key from the user
 password, Argon2 is used. We additionally added [2FA](api/otp) using TOTP. The 2FA secret key is encrypted using
-[RSA-4096](api/pki). We also added our own [TLS certificate](api/cert).
+[RSA-4096](api/pki), where keys are stored in HashiCorp Vault. We also added our own [TLS certificate](api/cert).
 
 ## Website
 

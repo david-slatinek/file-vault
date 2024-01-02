@@ -32,6 +32,13 @@ type Config struct {
 		Cert string `mapstructure:"certificate"`
 		Key  string
 	}
+	Vault struct {
+		Address     string
+		Token       string
+		MountPath   string `mapstructure:"mount-path"`
+		PublicPath  string `mapstructure:"public-path"`
+		PrivatePath string `mapstructure:"private-path"`
+	}
 }
 
 func NewConfig(path, filename, filetype string) (*Config, error) {
