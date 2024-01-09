@@ -132,7 +132,6 @@ func (receiver Storage) encryptFile(password string, plaintext []byte) ([]byte, 
 	if err != nil {
 		return nil, "", err
 	}
-	log.Printf("hash: %x", hash)
 
 	block, err := aes.NewCipher(hash)
 	if err != nil {
